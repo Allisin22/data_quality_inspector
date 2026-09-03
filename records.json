@@ -1,0 +1,55 @@
+[
+  {
+    "trial_id": "T001",
+    "voltage": 5.0,
+    "current": 0.01,
+    "temperature": 295.0
+  },
+  {
+    "trial_id": "T002",
+    "voltage": 4.8,
+    "current": 0.009,
+    "temperature": 297.0
+  },
+  {
+    "trial_id": "T003",
+    "voltage": 3.6,
+    "current": 0.999,
+    "temperature": 290.0
+  },
+  {
+    "trial_id": "T004",
+    "voltage": 3.0,
+    "current": 0.4
+  },
+  {
+    "trial_id": "T005",
+    "voltage": "five",
+    "current": 1.1,
+    "temperature": 299
+  },
+  {
+    "trial_id": "T006",
+    "voltage": 2.2,
+    "current": 1.1,
+    "temperature": 422
+  },
+  {
+    "trial_id": "T007",
+    "voltage": 2.2,
+    "current": 1.1,
+    "temperature": 333
+  },
+  {
+    "trial_id": "T009",
+    "voltage": 2.0,
+    "current": 1.1,
+    "temperature": 299
+  },
+  {
+    "trial_id": "T010",
+    "voltage": 2.0,
+    "current": 1.1,
+    "temperature": -299
+  }
+]
