@@ -43,8 +43,8 @@ def check_required_fields(records, required_fields):
 # LAYER 2: VALUE / TYPE CHECK
 # -------------------------
 def check_types(structurally_complete_records, expected_types):
-  invalid_type_records = []
   type_valid_records = []
+  invalid_type_records = []
 
   for record in structurally_complete_records:
     type_errors = []
@@ -69,7 +69,6 @@ def check_types(structurally_complete_records, expected_types):
       }
 
       invalid_type_records.append(failure_report)
-
     else:
       type_valid_records.append(record)
 
@@ -123,7 +122,7 @@ def check_instrument_reading(physically_valid_records, instrument_limits):
     if temp < min_temp or temp > max_temp:
       failure_report = {
         "record": record,
-        "invalid_field": "temperature",
+        "invalid_fields": "temperature",
         "value": temp,
         "reason": f"Temperature outside instrument range: {min_temp}-{max_temp} K"
       }
