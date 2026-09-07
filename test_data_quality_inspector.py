@@ -1,9 +1,12 @@
+import json
+
 from data_quality_inspector import (
   check_required_fields,
   check_types,
   check_physics,
   check_instrument_reading,
-  check_expected_range
+  check_expected_range,
+  save_results
 )
 
 #Layer 1
@@ -387,3 +390,48 @@ def test_instrument_boundaries():
   assert len(instrument_invalid_records) == 0
   assert instrument_valid_records[0]["trial_id"] == "T001"
   assert instrument_valid_records[1]["trial_id"] == "T002"
+
+def test_save_results(tmp_path):
+  review_records = []
+  incomplete_records = []
+  invalid_type_records = []
+  physically_invalid_records = []
+  instrument_invalid_records = []
+
+  expected_range_records = [{
+    "trial_id": "T001",
+    "voltage": 5.0,
+    "current": .1,
+    "temperature": 292
+  }
+  ]
+
+  output_file = tmp_path / "test_results.json"
+
+  save_results(
+    expected_range_records,
+    review_records,
+    incomplete_records,
+    invalid_type_records,
+    physically_invalid_records,
+    instrument_invalid_records,
+    file_name = output_file
+  )
+
+  assert output_file.exists()
+
+  with open(output_file, "r") as file:
+    saved_results = json.load(file)
+
+  assert "accepted" in saved_results
+  assert "review" in saved_results
+  assert "rejected" in saved_results
+
+  assert len(saved_results["accepted"]) == 1
+  assert saved_results["accepted"][0]["trial_id"] == "T001"
+  assert saved_results["review"] == []
+
+  assert saved_results["rejected"]["structural"] == []
+  assert saved_results["rejected"]["type"] == []
+  assert saved_results["rejected"]["physics"] == []
+  assert saved_results["rejected"]["instrument"] == []

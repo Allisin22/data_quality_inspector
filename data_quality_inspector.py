@@ -162,6 +162,122 @@ def check_expected_range(instrument_valid_records, expected_ranges):
 
   return expected_range_records, review_records
 
+def print_summary(
+  records,
+  expected_range_records,
+  review_records,
+  incomplete_records,
+  invalid_type_records,
+  physically_invalid_records,
+  instrument_invalid_records
+):
+
+  total_records = len(records)
+
+  accepted_count = len(expected_range_records)
+  review_count = len(review_records)
+
+  structural_count = len(incomplete_records)
+  type_count = len(invalid_type_records)
+  physics_count = len(physically_invalid_records)
+  instrument_count = len(instrument_invalid_records)
+
+  rejected_count = (
+    structural_count
+    + type_count
+    + physics_count
+    + instrument_count
+  )
+
+  print("\nDATA QUALITY INSPECTOR SUMMARY")
+
+  print(f"\nTotal records: {total_records}")
+  print(f"Accepted: {accepted_count}")
+  print(f"Review required: {review_count}")
+  print(f"Rejected: {rejected_count}")
+
+  print("\nRejected by layer:")
+  print(f"Structural: {structural_count}")
+  print(f"Type: {type_count}")
+  print(f"Physics: {physics_count}")
+  print(f"Instrument: {instrument_count}")
+
+  # LAYER 1 QA - STRUCTURAL FAIL
+  print("\nRECORD DETAILS")
+
+  for fail_report in incomplete_records:
+    trial_id = fail_report["record"]["trial_id"]
+    missing_fields = fail_report["missing_fields"]
+
+    print(f"\n Trial ID: {trial_id}")
+    print("Structural failure")
+    print(f"Missing fields: {missing_fields}")
+
+  # LAYER 2 QA - INVALID TYPE
+  for fail_report in invalid_type_records:
+    trial_id = fail_report["record"]["trial_id"]
+    invalid_fields = fail_report["invalid_fields"]
+
+    print(f"\n Trial ID: {trial_id}")
+    print("Type failure")
+    print(f"Invalid fields: {invalid_fields}")
+
+  # LAYER 3 QA - INVALID PHYSICS
+  for fail_report in physically_invalid_records:
+    trial_id = fail_report["record"]["trial_id"]
+    physics_error = fail_report["invalid_fields"][0]
+
+    invalid_field = physics_error["field"]
+    value = physics_error["value"]
+
+    print(f"\nTrial ID: {trial_id}")
+    print("Invalid physics")
+    print(f"Invalid field: {invalid_field}")
+    print(f"Value: {value}")
+
+  # LAYER 4 QA - INSTRUENT RANGE EXCEEDED
+  for fail_report in instrument_invalid_records:
+    trial_id = fail_report["record"]["trial_id"]
+    invalid_fields = fail_report["invalid_fields"]
+
+    print(f"\n Trial ID: {trial_id}")
+    print("Instrument range exceeded")
+    print(f"Invalid fields: {invalid_fields}")
+
+  # LAYER 5 QA - EXPECTED RANGE EXCEEDED
+  for review_report in review_records:
+    trial_id = review_report["record"]["trial_id"]
+    review_field = review_report["review_field"]
+    value = review_report["value"]
+
+    print(f"\n Trial ID: {trial_id}")
+    print("Expected range exceeded")
+    print(f"Review field: {review_field}")
+    print(f"Value: {value}")
+
+def save_results(
+  expected_range_records,
+  review_records,
+  incomplete_records,
+  invalid_type_records,
+  physically_invalid_records,
+  instrument_invalid_records,
+  file_name="inspection_results.json"
+):
+  results = {
+    "accepted": expected_range_records,
+    "review": review_records,
+    "rejected": {
+      "structural": incomplete_records,
+      "type": invalid_type_records,
+      "physics": physically_invalid_records,
+      "instrument": instrument_invalid_records
+    }
+  }
+
+  with open(file_name, "w") as file:
+    json.dump(results, file, indent=2)
+
 def main():
   project_name = "Data Quality Inspector"
   file_name = "records.json"
@@ -226,35 +342,25 @@ def main():
     expected_ranges
   )
 
+  # SUMMARY
+  print_summary(
+    records,
+    expected_range_records,
+    review_records,
+    incomplete_records,
+    invalid_type_records,
+    physically_invalid_records,
+    instrument_invalid_records
+  )
 
-  print("\nStructurally complete records:")
-  print(json.dumps(structurally_complete_records, indent=2))
+  save_results(
+    expected_range_records,
+    review_records,
+    incomplete_records,
+    invalid_type_records,
+    physically_invalid_records,
+    instrument_invalid_records
+  )
 
-  print("\nStructurally incomplete records:")
-  print(json.dumps(incomplete_records, indent=2))
-
-  print("\nInvalid type records:")
-  print(json.dumps(invalid_type_records, indent=2))
-
-  print("\nType-valid records:")
-  print(json.dumps(type_valid_records, indent=2))
-
-  print("\nPhysically invalid records:")
-  print(json.dumps(physically_invalid_records, indent=2))
-
-  print("\nPhysically valid records:")
-  print(json.dumps(physically_valid_records, indent=2))
-
-  print("\nInstrument invalid records:")
-  print(json.dumps(instrument_invalid_records, indent=2))
-
-  print("\nInstrument valid records:")
-  print(json.dumps(instrument_valid_records, indent=2))
-
-  print("\nReview records:")
-  print(json.dumps(review_records, indent=2))
-
-  print("\nExpected range records:")
-  print(json.dumps(expected_range_records, indent=2))
 if __name__ == "__main__":
   main()
